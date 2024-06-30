@@ -6,6 +6,7 @@ from modules.processing import StableDiffusionProcessing
 from modules.processing import Processed
 from modules.shared import opts, state
 from enum import Enum
+import gc
 
 elem_id_prefix = "ultimateupscale"
 
@@ -179,8 +180,12 @@ class USDURedraw():
                 p.image_mask = mask
                 processed = processing.process_images(p)
                 draw.rectangle(self.calc_rectangle(xi, yi), fill="black")
-                if (len(processed.images) > 0):
+                if len(processed.images) > 0:
+                    # Delete the previous image to free up memory
+                    del image
                     image = processed.images[0]
+                    # Explicitly invoke garbage collection
+                    gc.collect()
 
         p.width = image.width
         p.height = image.height
